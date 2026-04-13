@@ -1,0 +1,303 @@
+{% extends "base.html" %}
+{% block title %}Review Extraction — Far West Legacy{% endblock %}
+
+{% block head %}
+<style>
+  /* Relationship entry grid widths specific to review page */
+  .rel-spouse   { grid-template-columns: 1fr 1fr auto auto; }
+  .rel-parent   { grid-template-columns: 1fr 1fr 1fr auto auto; }
+  .rel-child    { grid-template-columns: 1fr 1fr auto auto; }
+  .rel-sibling  { grid-template-columns: 1fr 1fr 1fr auto auto; }
+</style>
+{% endblock %}
+
+{% block content %}
+<h2>Review &amp; Edit Extracted Data</h2>
+<p style="font-family:sans-serif; font-size:0.85rem; color:var(--muted); margin-bottom:1rem;">
+  Review all fields carefully before approving. Edits here are reflected in the saved JSON.
+</p>
+
+<div class="review-layout">
+
+  <!-- Left: editable form -->
+  <div>
+  <form method="post" action="/approve/{{ job_id }}" id="review-form">
+
+    <!-- Deceased -->
+    <div class="card">
+      <h3 style="margin-top:0">Deceased</h3>
+
+      <div class="field-row cols-3">
+        <div class="field">
+          <label>Given Names</label>
+          <input type="text" name="given_names" value="{{ data.deceased.given_names }}">
+        </div>
+        <div class="field">
+          <label>Surname</label>
+          <input type="text" name="surname" value="{{ data.deceased.surname }}">
+        </div>
+        <div class="field">
+          <label>Maiden Name</label>
+          <input type="text" name="maiden_name" value="{{ data.deceased.maiden_name }}">
+        </div>
+      </div>
+
+      <div class="field-row cols-4">
+        <div class="field">
+          <label>Suffix</label>
+          <input type="text" name="suffix" value="{{ data.deceased.suffix }}" placeholder="Jr., Sr., III…">
+        </div>
+        <div class="field">
+          <label>Gender</label>
+          <select name="gender">
+            <option value="" {% if not data.deceased.gender %}selected{% endif %}>Unknown</option>
+            <option value="Male" {% if data.deceased.gender == "Male" %}selected{% endif %}>Male</option>
+            <option value="Female" {% if data.deceased.gender == "Female" %}selected{% endif %}>Female</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Birth Date</label>
+          <input type="text" name="birth_date" value="{{ data.deceased.birth_date }}" placeholder="YYYY-MM-DD">
+        </div>
+        <div class="field">
+          <label>Death Date</label>
+          <input type="text" name="death_date" value="{{ data.deceased.death_date }}" placeholder="YYYY-MM-DD">
+        </div>
+      </div>
+
+      <div class="field-row cols-3">
+        <div class="field">
+          <label>Birth Place</label>
+          <input type="text" name="birth_place" value="{{ data.deceased.birth_place }}">
+        </div>
+        <div class="field">
+          <label>Death Place</label>
+          <input type="text" name="death_place" value="{{ data.deceased.death_place }}">
+        </div>
+        <div class="field">
+          <label>Burial Place</label>
+          <input type="text" name="burial_place" value="{{ data.deceased.burial_place }}">
+        </div>
+      </div>
+    </div>
+
+    <!-- Relationships -->
+    <div class="card">
+      <h3 style="margin-top:0">Relationships</h3>
+
+      <!-- Spouses -->
+      <h3>Spouses</h3>
+      <div id="spouses-container">
+        {% for s in data.relationships.spouses %}
+        <div class="rel-entry rel-spouse" data-idx="{{ loop.index0 }}">
+          <div class="field">
+            <label>Given Names</label>
+            <input type="text" name="spouse_{{ loop.index0 }}_given_names" value="{{ s.given_names }}">
+          </div>
+          <div class="field">
+            <label>Surname</label>
+            <input type="text" name="spouse_{{ loop.index0 }}_surname" value="{{ s.surname }}">
+          </div>
+          <div class="checkbox-row">
+            <input type="checkbox" name="spouse_{{ loop.index0 }}_deceased_cb" onchange="syncDeceased(this,'spouse_{{ loop.index0 }}_deceased')" {% if s.get('deceased') %}checked{% endif %}>
+            <input type="hidden" name="spouse_{{ loop.index0 }}_deceased" value="{{ 'true' if s.get('deceased') else 'false' }}">
+            <span>Deceased</span>
+          </div>
+          <div class="rel-entry__remove">
+            <button type="button" class="btn btn-danger" onclick="removeEntry(this)">Remove</button>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+      <button type="button" class="btn btn-add" onclick="addRelEntry('spouses','spouse',['given_names','surname'],['Deceased'])">+ Add Spouse</button>
+
+      <!-- Parents -->
+      <h3>Parents</h3>
+      <div id="parents-container">
+        {% for p in data.relationships.parents %}
+        <div class="rel-entry rel-parent" data-idx="{{ loop.index0 }}">
+          <div class="field">
+            <label>Given Names</label>
+            <input type="text" name="parent_{{ loop.index0 }}_given_names" value="{{ p.given_names }}">
+          </div>
+          <div class="field">
+            <label>Surname</label>
+            <input type="text" name="parent_{{ loop.index0 }}_surname" value="{{ p.surname }}">
+          </div>
+          <div class="field">
+            <label>Maiden Name</label>
+            <input type="text" name="parent_{{ loop.index0 }}_maiden_name" value="{{ p.get('maiden_name','') }}">
+          </div>
+          <div class="checkbox-row">
+            <input type="checkbox" name="parent_{{ loop.index0 }}_deceased_cb" onchange="syncDeceased(this,'parent_{{ loop.index0 }}_deceased')" {% if p.get('deceased') %}checked{% endif %}>
+            <input type="hidden" name="parent_{{ loop.index0 }}_deceased" value="{{ 'true' if p.get('deceased') else 'false' }}">
+            <span>Deceased</span>
+          </div>
+          <div class="rel-entry__remove">
+            <button type="button" class="btn btn-danger" onclick="removeEntry(this)">Remove</button>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+      <button type="button" class="btn btn-add" onclick="addRelEntry('parents','parent',['given_names','surname','maiden_name'],['Deceased'])">+ Add Parent</button>
+
+      <!-- Children -->
+      <h3>Children</h3>
+      <div id="children-container">
+        {% for c in data.relationships.children %}
+        <div class="rel-entry rel-child" data-idx="{{ loop.index0 }}">
+          <div class="field">
+            <label>Given Names</label>
+            <input type="text" name="child_{{ loop.index0 }}_given_names" value="{{ c.given_names }}">
+          </div>
+          <div class="field">
+            <label>Surname</label>
+            <input type="text" name="child_{{ loop.index0 }}_surname" value="{{ c.surname }}">
+          </div>
+          <div class="checkbox-row">
+            <input type="checkbox" name="child_{{ loop.index0 }}_deceased_cb" onchange="syncDeceased(this,'child_{{ loop.index0 }}_deceased')" {% if c.get('deceased') %}checked{% endif %}>
+            <input type="hidden" name="child_{{ loop.index0 }}_deceased" value="{{ 'true' if c.get('deceased') else 'false' }}">
+            <span>Deceased</span>
+          </div>
+          <div class="rel-entry__remove">
+            <button type="button" class="btn btn-danger" onclick="removeEntry(this)">Remove</button>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+      <button type="button" class="btn btn-add" onclick="addRelEntry('children','child',['given_names','surname'],['Deceased'])">+ Add Child</button>
+
+      <!-- Siblings -->
+      <h3>Siblings</h3>
+      <div id="siblings-container">
+        {% for s in data.relationships.siblings %}
+        <div class="rel-entry rel-sibling" data-idx="{{ loop.index0 }}">
+          <div class="field">
+            <label>Given Names</label>
+            <input type="text" name="sibling_{{ loop.index0 }}_given_names" value="{{ s.given_names }}">
+          </div>
+          <div class="field">
+            <label>Surname</label>
+            <input type="text" name="sibling_{{ loop.index0 }}_surname" value="{{ s.surname }}">
+          </div>
+          <div class="field">
+            <label>Maiden Name</label>
+            <input type="text" name="sibling_{{ loop.index0 }}_maiden_name" value="{{ s.get('maiden_name','') }}">
+          </div>
+          <div class="checkbox-row">
+            <input type="checkbox" name="sibling_{{ loop.index0 }}_deceased_cb" onchange="syncDeceased(this,'sibling_{{ loop.index0 }}_deceased')" {% if s.get('deceased') %}checked{% endif %}>
+            <input type="hidden" name="sibling_{{ loop.index0 }}_deceased" value="{{ 'true' if s.get('deceased') else 'false' }}">
+            <span>Deceased</span>
+          </div>
+          <div class="rel-entry__remove">
+            <button type="button" class="btn btn-danger" onclick="removeEntry(this)">Remove</button>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+      <button type="button" class="btn btn-add" onclick="addRelEntry('siblings','sibling',['given_names','surname','maiden_name'],['Deceased'])">+ Add Sibling</button>
+    </div>
+
+    <!-- Eulogy & Service -->
+    <div class="card">
+      <h3 style="margin-top:0">Eulogy Text</h3>
+      <div class="field">
+        <textarea name="eulogy_text" rows="6">{{ data.eulogy_text }}</textarea>
+      </div>
+
+      <h3>Service Details</h3>
+      <div class="field">
+        <textarea name="service_details" rows="4">{{ data.service_details }}</textarea>
+      </div>
+    </div>
+
+    <div class="form-actions">
+      <button type="submit" class="btn btn-primary">Approve &amp; Save &rarr;</button>
+      <a href="/" class="btn btn-secondary">Start Over</a>
+    </div>
+
+  </form>
+  </div>
+
+  <!-- Right: raw text sidebar -->
+  <div class="sticky-sidebar">
+    <div class="card">
+      <h3 style="margin-top:0">Original Obituary Text</h3>
+      <div class="raw-panel">{{ data.raw_text }}</div>
+    </div>
+    {% if data.source_url %}
+    <div class="card" style="margin-top:0.75rem; padding: 0.75rem 1rem;">
+      <label style="margin-bottom:0.25rem">Source URL</label>
+      <a href="{{ data.source_url }}" target="_blank" rel="noopener" style="font-size:0.82rem; word-break:break-all; color:var(--accent);">{{ data.source_url }}</a>
+    </div>
+    {% endif %}
+  </div>
+
+</div><!-- /review-layout -->
+
+<script>
+// Keep hidden deceased value in sync with checkbox
+function syncDeceased(cb, hiddenName) {
+  const hidden = document.querySelector(`input[name="${hiddenName}"]`);
+  if (hidden) hidden.value = cb.checked ? 'true' : 'false';
+}
+
+// Remove a relationship entry and re-index remaining entries in that container
+function removeEntry(btn) {
+  const entry = btn.closest('.rel-entry');
+  const container = entry.parentElement;
+  entry.remove();
+  reindex(container);
+}
+
+// Re-number all entries in a container after add/remove
+function reindex(container) {
+  const entries = container.querySelectorAll('.rel-entry');
+  entries.forEach((entry, i) => {
+    entry.querySelectorAll('input, select, textarea').forEach(el => {
+      if (el.name) {
+        // name pattern: prefix_OLDIDX_field
+        el.name = el.name.replace(/_\d+_/, `_${i}_`);
+      }
+    });
+    entry.dataset.idx = i;
+  });
+}
+
+// Add a new blank relationship entry
+function addRelEntry(containerId, prefix, textFields, checkboxLabels) {
+  const container = document.getElementById(`${containerId}-container`);
+  const idx = container.querySelectorAll('.rel-entry').length;
+
+  const entry = document.createElement('div');
+  entry.className = `rel-entry rel-${prefix}`;
+  entry.dataset.idx = idx;
+
+  let html = '';
+  textFields.forEach(field => {
+    const label = field.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+    html += `<div class="field">
+      <label>${label}</label>
+      <input type="text" name="${prefix}_${idx}_${field}" value="">
+    </div>`;
+  });
+
+  checkboxLabels.forEach(label => {
+    const field = label.toLowerCase();
+    html += `<div class="checkbox-row">
+      <input type="checkbox" name="${prefix}_${idx}_${field}_cb"
+        onchange="syncDeceased(this,'${prefix}_${idx}_${field}')">
+      <input type="hidden" name="${prefix}_${idx}_${field}" value="false">
+      <span>${label}</span>
+    </div>`;
+  });
+
+  html += `<div class="rel-entry__remove">
+    <button type="button" class="btn btn-danger" onclick="removeEntry(this)">Remove</button>
+  </div>`;
+
+  entry.innerHTML = html;
+  container.appendChild(entry);
+}
+</script>
+{% endblock %}

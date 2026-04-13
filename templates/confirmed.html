@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+{% block title %}Approved — Far West Legacy{% endblock %}
+
+{% block content %}
+<div class="card confirmed-box">
+  <div class="checkmark">&#10003;</div>
+  <h2 style="color: #166534;">Extraction Approved</h2>
+  <p>The reviewed data has been saved.</p>
+  <code>{{ out_path }}</code>
+</div>
+
+<div class="card">
+  <h3 style="margin-top:0">Saved Data Summary</h3>
+
+  <div class="field-row cols-2" style="margin-bottom:0.5rem;">
+    <div>
+      <label>Name</label>
+      <p>{{ data.deceased.given_names }} {{ data.deceased.surname }}{% if data.deceased.maiden_name %} ({{ data.deceased.maiden_name }}){% endif %}{% if data.deceased.suffix %} {{ data.deceased.suffix }}{% endif %}</p>
+    </div>
+    <div>
+      <label>Gender</label>
+      <p>{{ data.deceased.gender or "—" }}</p>
+    </div>
+  </div>
+
+  <div class="field-row cols-2" style="margin-bottom:0.5rem;">
+    <div>
+      <label>Born</label>
+      <p>{{ data.deceased.birth_date or "—" }}{% if data.deceased.birth_place %} &bull; {{ data.deceased.birth_place }}{% endif %}</p>
+    </div>
+    <div>
+      <label>Died</label>
+      <p>{{ data.deceased.death_date or "—" }}{% if data.deceased.death_place %} &bull; {{ data.deceased.death_place }}{% endif %}</p>
+    </div>
+  </div>
+
+  {% if data.deceased.burial_place %}
+  <div class="field" style="margin-bottom:0.5rem;">
+    <label>Burial</label>
+    <p>{{ data.deceased.burial_place }}</p>
+  </div>
+  {% endif %}
+
+  {% set rels = data.relationships %}
+  {% if rels.spouses %}
+  <div class="field" style="margin-bottom:0.5rem;">
+    <label>Spouses</label>
+    <p>{% for s in rels.spouses %}{{ s.given_names }} {{ s.surname }}{% if s.deceased %} (deceased){% endif %}{% if not loop.last %}, {% endif %}{% endfor %}</p>
+  </div>
+  {% endif %}
+
+  {% if rels.parents %}
+  <div class="field" style="margin-bottom:0.5rem;">
+    <label>Parents</label>
+    <p>{% for p in rels.parents %}{{ p.given_names }} {{ p.surname }}{% if p.maiden_name %} ({{ p.maiden_name }}){% endif %}{% if p.deceased %} (deceased){% endif %}{% if not loop.last %}, {% endif %}{% endfor %}</p>
+  </div>
+  {% endif %}
+
+  {% if rels.children %}
+  <div class="field" style="margin-bottom:0.5rem;">
+    <label>Children</label>
+    <p>{% for c in rels.children %}{{ c.given_names }} {{ c.surname }}{% if c.deceased %} (deceased){% endif %}{% if not loop.last %}, {% endif %}{% endfor %}</p>
+  </div>
+  {% endif %}
+
+  {% if rels.siblings %}
+  <div class="field" style="margin-bottom:0.5rem;">
+    <label>Siblings</label>
+    <p>{% for s in rels.siblings %}{{ s.given_names }} {{ s.surname }}{% if s.maiden_name %} ({{ s.maiden_name }}){% endif %}{% if s.deceased %} (deceased){% endif %}{% if not loop.last %}, {% endif %}{% endfor %}</p>
+  </div>
+  {% endif %}
+</div>
+
+<div class="form-actions" style="border-top: none; padding-top: 0;">
+  <a href="/" class="btn btn-primary">Extract Another Obituary</a>
+</div>
+{% endblock %}

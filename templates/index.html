@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block title %}Extract Obituary — Far West Legacy{% endblock %}
+
+{% block content %}
+<h2>Extract Obituary</h2>
+
+{% if error %}
+<div class="alert alert-error">{{ error }}</div>
+{% endif %}
+
+<div class="card">
+  <form method="post" action="/extract">
+
+    <div class="field">
+      <label for="obituary_text">Obituary Text</label>
+      <textarea
+        id="obituary_text"
+        name="obituary_text"
+        rows="14"
+        placeholder="Paste the full obituary text here…"
+      >{{ obituary_text or "" }}</textarea>
+    </div>
+
+    <div style="display: flex; align-items: center; gap: 1rem; margin: 0.75rem 0; color: var(--muted); font-family: sans-serif; font-size: 0.85rem;">
+      <hr style="flex:1; border: none; border-top: 1px solid var(--border);">
+      <span>or</span>
+      <hr style="flex:1; border: none; border-top: 1px solid var(--border);">
+    </div>
+
+    <div class="field">
+      <label for="source_url">Obituary URL <span style="font-weight:normal;text-transform:none;">(fetches text automatically)</span></label>
+      <input
+        type="url"
+        id="source_url"
+        name="source_url"
+        placeholder="https://www.jamesporttricountyweekly.com/obituaries/…"
+        value="{{ source_url or "" }}"
+      >
+    </div>
+
+    <div class="form-actions">
+      <button type="submit" class="btn btn-primary">Extract &rarr;</button>
+      <span style="font-family: sans-serif; font-size: 0.8rem; color: var(--muted);">
+        This will call the Claude API (Haiku).
+      </span>
+    </div>
+
+  </form>
+</div>
+{% endblock %}
