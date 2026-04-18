@@ -329,5 +329,5 @@ def approve(job_id: str):
 
 if __name__ == "__main__":
     port = int(os.getenv("FLASK_PORT", 8081))
-    app.run(port=port, debug=True)
+    app.run(host="0.0.0.0", port=port, debug=True)
 

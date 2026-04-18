@@ -5,6 +5,18 @@ Format: session number, date, milestone label, summary of changes.
 
 ---
 
+## Session 003a — 2026-04-18 — Flask bind fix
+
+**Goal:** Make Flask reachable over Tailnet so demo can be viewed from other machines.
+
+### Fixed
+- `src/app.py` — `app.run()` now binds to `host="0.0.0.0"` (was implicit `127.0.0.1`, which blocked access from Dell/Tailnet to the MacBook Flask instance)
+
+### Tests
+- 30 passed, 3 skipped (no regressions)
+
+---
+
 ## Session 003 — 2026-04-18 — MacBook Demo Scripts
 
 **Goal:** Add macOS demo scripts and sample obituaries so the app can be demoed on the MacBook with minimal friction.
