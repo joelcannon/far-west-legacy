@@ -5,6 +5,28 @@ Format: session number, date, milestone label, summary of changes.
 
 ---
 
+## Session 003 — 2026-04-18 — MacBook Demo Scripts
+
+**Goal:** Add macOS demo scripts and sample obituaries so the app can be demoed on the MacBook with minimal friction.
+
+### Added
+- `demo/sample_neese.txt` — sparse obituary (no spouse/children, all relatives deceased)
+- `demo/sample_veteran.txt` — rich obituary (veteran, full family, service details)
+- `demo/sample_amish.txt` — large-family obituary (8 children, 42 grandchildren, maiden name)
+- `start_mac.sh` — macOS Flask launcher; kills port 8081, cleans tmp/, activates venv, starts Flask
+- `copy_sample_mac.sh` — lists demo samples or copies a named sample to macOS clipboard via pbcopy
+
+### Changed
+- `CLAUDE.md` — documented macOS demo script workflow and port 8081 for MacBook demo
+
+### Verified
+- `FLASK_PORT` env var honored in `src/app.py` (defaults to 8080; set to 8081 on MacBook)
+
+### Tests
+- 30 passed, 3 skipped (no regressions)
+
+---
+
 ## Session 002d — 2026-04-13 — Documentation
 
 **Goal:** Create ARCHITECTURE.md, CHANGELOG.md, update CLAUDE.md.

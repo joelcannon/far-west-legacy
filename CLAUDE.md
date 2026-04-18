@@ -24,6 +24,17 @@ Standing rules for Claude Code (Agent 13) sessions.
 - **Python:** 3.12+ with venv
 - **Activate venv before running anything:** `.venv\Scripts\activate` (Windows)
 
+## Demo Environment
+
+- **Demo machine:** MacBook Air (Joels-MacBook-Air)
+- **Path:** `~/Projects/far-west-legacy`
+- **Port:** 8081 (set via `FLASK_PORT` env var in `start_mac.sh`)
+- **Browser:** Chrome
+- **Scripts (macOS only):**
+  - `./start_mac.sh` — kill any process on 8081, clean `tmp/`, launch Flask
+  - `./copy_sample_mac.sh [name]` — list samples or copy one to clipboard
+- **Demo samples:** `demo/sample_*.txt` — synthetic, anonymized obituaries for demo use
+
 ## Session Protocol
 
 1. Every session begins with `make test` (or `pytest`) — green before touching code.
@@ -68,6 +79,8 @@ The FamilySearch Solutions Agreement includes a publicity restriction:
   - `src/fetch.py` — URL fetch + BeautifulSoup parse
   - `src/cli.py` — `--text / --file / --url` CLI
   - `src/app.py` — Flask UI on port 8080 (paste → extract → review → approve)
+  - `demo/` — synthetic demo obituaries (neese, veteran, amish)
+  - `start_mac.sh`, `copy_sample_mac.sh` — macOS demo scripts
 - **Milestone 2 (next):** FamilySearch OAuth + sandbox writes
 - **Milestone 3 (future):** Photo/portrait handling, Sonnet vision OCR, production release
 
