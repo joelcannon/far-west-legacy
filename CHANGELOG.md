@@ -5,6 +5,25 @@ Format: session number, date, milestone label, summary of changes.
 
 ---
 
+## Session 004 — 2026-04-18 — launchd Deploy
+
+**Goal:** Deploy Flask as a persistent user-level launchd service on the MacBook, so the demo survives SSH disconnect and reboot.
+
+### Added
+- `deploy/com.farwestlegacy.app.plist` — launchd service definition
+- `deploy/install_mac.sh` — idempotent installer: copies plist, loads service, verifies port, prints URLs
+- `deploy/uninstall_mac.sh` — clean removal (preserves logs)
+- `deploy/README.md` — stable install vs dev mode workflow
+
+### Changed
+- `start_mac.sh` — dev-mode launcher now stops the launchd service before running foreground Flask and restarts it on exit (via `trap`)
+- `CLAUDE.md` — Demo Environment section updated with launchd service details and corrected repo path (`~/projects/far-west-legacy`, lowercase)
+
+### Tests
+- 30 passed, 3 skipped (no regressions)
+
+---
+
 ## Session 003a — 2026-04-18 — Flask bind fix
 
 **Goal:** Make Flask reachable over Tailnet so demo can be viewed from other machines.

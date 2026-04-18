@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>com.farwestlegacy.app</string>
+
+    <key>ProgramArguments</key>
+    <array>
+        <string>/Users/joelcannon/projects/far-west-legacy/.venv/bin/python</string>
+        <string>-m</string>
+        <string>src.app</string>
+    </array>
+
+    <key>WorkingDirectory</key>
+    <string>/Users/joelcannon/projects/far-west-legacy</string>
+
+    <key>EnvironmentVariables</key>
+    <dict>
+        <key>FLASK_PORT</key>
+        <string>8081</string>
+        <key>PYTHONUNBUFFERED</key>
+        <string>1</string>
+    </dict>
+
+    <key>RunAtLoad</key>
+    <true/>
+
+    <key>KeepAlive</key>
+    <true/>
+
+    <key>StandardOutPath</key>
+    <string>/Users/joelcannon/Library/Logs/far-west-legacy/flask.log</string>
+
+    <key>StandardErrorPath</key>
+    <string>/Users/joelcannon/Library/Logs/far-west-legacy/flask.err</string>
+
+    <key>ThrottleInterval</key>
+    <integer>10</integer>
+</dict>
+</plist>

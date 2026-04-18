@@ -27,13 +27,19 @@ Standing rules for Claude Code (Agent 13) sessions.
 ## Demo Environment
 
 - **Demo machine:** MacBook Air (Joels-MacBook-Air)
-- **Path:** `~/Projects/far-west-legacy`
-- **Port:** 8081 (set via `FLASK_PORT` env var in `start_mac.sh`)
-- **Browser:** Chrome
+- **Path:** `~/projects/far-west-legacy` (note: lowercase `projects` on disk)
+- **Port:** 8081 (set via `FLASK_PORT` env var)
+- **Browser:** Chrome (system default)
+- **Deployment:** launchd user-level service (see `deploy/README.md`)
+  - Service label: `com.farwestlegacy.app`
+  - Plist: `~/Library/LaunchAgents/com.farwestlegacy.app.plist`
+  - Logs: `~/Library/Logs/far-west-legacy/flask.{log,err}`
+  - Install:   `./deploy/install_mac.sh`
+  - Uninstall: `./deploy/uninstall_mac.sh`
 - **Scripts (macOS only):**
-  - `./start_mac.sh` — kill any process on 8081, clean `tmp/`, launch Flask
+  - `./start_mac.sh` — dev mode: foreground Flask with debug=True, auto-restores launchd on exit
   - `./copy_sample_mac.sh [name]` — list samples or copy one to clipboard
-- **Demo samples:** `demo/sample_*.txt` — synthetic, anonymized obituaries for demo use
+- **Demo samples:** `demo/sample_*.txt` — synthetic, anonymized obituaries
 
 ## Session Protocol
 

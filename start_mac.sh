@@ -1,22 +1,32 @@
 #!/bin/bash
-# Far West Legacy — macOS demo launcher
-# Kills any process on port 8081, cleans tmp/, launches Flask.
+# Far West Legacy — macOS dev-mode launcher.
+# Stops the launchd service (if running), launches Flask in foreground,
+# and restarts the service on exit.
 
 set -e
 
 PORT=8081
+SERVICE_LABEL="com.farwestlegacy.app"
+PLIST_DEST="$HOME/Library/LaunchAgents/$SERVICE_LABEL.plist"
 
-echo "FWL demo launcher"
-echo "-----------------"
+echo "FWL dev-mode launcher"
+echo "---------------------"
 
-# Kill any existing process on the port
+# Was launchd service running? (determines whether to resume on exit)
+SERVICE_WAS_RUNNING=false
+if launchctl print "gui/$(id -u)/$SERVICE_LABEL" >/dev/null 2>&1; then
+    SERVICE_WAS_RUNNING=true
+    echo "Stopping launchd service for dev mode..."
+    launchctl bootout "gui/$(id -u)/$SERVICE_LABEL" 2>/dev/null || true
+    sleep 0.5
+fi
+
+# Kill any remaining process on the port
 EXISTING=$(lsof -ti:$PORT 2>/dev/null || true)
 if [ -n "$EXISTING" ]; then
     echo "Killing existing process(es) on port $PORT: $EXISTING"
     echo "$EXISTING" | xargs kill -9 2>/dev/null || true
     sleep 0.5
-else
-    echo "No existing process on port $PORT."
 fi
 
 # Clean tmp/ stragglers
@@ -30,16 +40,27 @@ fi
 
 # Activate venv
 if [ ! -f .venv/bin/activate ]; then
-    echo "ERROR: .venv not found. Run: python3 -m venv .venv && source .venv/bin/activate && pip install -r requirements.txt"
+    echo "ERROR: .venv not found."
     exit 1
 fi
-
 # shellcheck disable=SC1091
 source .venv/bin/activate
 
-# Launch Flask
-echo "Starting Flask on port $PORT..."
+# Trap exit to restore launchd service if it was running
+cleanup() {
+    echo ""
+    if [ "$SERVICE_WAS_RUNNING" = true ] && [ -f "$PLIST_DEST" ]; then
+        echo "Restarting launchd service..."
+        launchctl bootstrap "gui/$(id -u)" "$PLIST_DEST" 2>/dev/null || \
+            echo "WARNING: Could not restart service. Run ./deploy/install_mac.sh to recover."
+    fi
+}
+trap cleanup EXIT
+
+# Launch Flask in foreground
+echo "Starting Flask (dev mode) on port $PORT..."
 echo "Open Chrome: http://localhost:$PORT"
+echo "Press Ctrl+C to stop. The launchd service will resume if it was running."
 echo ""
 export FLASK_PORT=$PORT
 python -m src.app
